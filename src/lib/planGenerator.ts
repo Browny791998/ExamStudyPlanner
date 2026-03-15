@@ -2,7 +2,8 @@ import { addDays, startOfDay } from 'date-fns'
 import type { IStudyPlan, IDailyTask, IMilestone, GeneratedPlan } from '@/types/studyPlan'
 import { DIFFICULTY_WEEK_MAP } from '@/constants/questionTypes'
 
-type ExamType = 'IELTS' | 'TOEFL' | 'JLPT' | 'SAT'
+type StandardExamType = 'IELTS' | 'TOEFL' | 'JLPT' | 'SAT'
+type ExamType = StandardExamType | 'CUSTOM'
 type SkillFocus = IDailyTask['skillFocus']
 type TaskType = IDailyTask['taskType']
 
@@ -13,8 +14,8 @@ interface DayTemplate {
   titleOverride?: string
 }
 
-// 7-day rotation for each exam type (index 0 = Monday ... 6 = Sunday)
-const ROTATIONS: Record<ExamType, DayTemplate[]> = {
+// 7-day rotation for each standard exam type (index 0 = Monday ... 6 = Sunday)
+const ROTATIONS: Record<StandardExamType, DayTemplate[]> = {
   IELTS: [
     { skillFocus: 'Reading',    taskType: 'drill',      durationMins: 60 },
     { skillFocus: 'Listening',  taskType: 'drill',      durationMins: 45 },
@@ -104,35 +105,49 @@ interface AvailableExamSet {
 export interface PlanGeneratorConfig {
   userId: string
   examType: ExamType
+  displayName?: string  // for custom plans: the user-provided exam name
   targetScore: string
-  examDate: Date
+  examDate: Date | null
   startDate: Date
+  planDays?: number     // custom plan duration; defaults to 90 for standard
   availableSets?: AvailableExamSet[]
 }
 
 export function generateStudyPlan(config: PlanGeneratorConfig): GeneratedPlan {
-  const { userId, examType, targetScore, examDate, startDate, availableSets = [] } = config
+  const { userId, examType, displayName, targetScore, examDate, startDate, planDays, availableSets = [] } = config
+  const isCustom = examType === 'CUSTOM'
+  const totalDays = isCustom ? (planDays ?? 1) : 90
   const start = startOfDay(startDate)
-  const endDate = addDays(start, 89) // 90 days inclusive
+  const endDate = addDays(start, totalDays - 1)
+  const planTitle = isCustom
+    ? `${displayName ?? 'Custom'} — ${totalDays}-Day Study Plan`
+    : `${examType} ${targetScore} — 90-Day Study Plan`
+
+  const totalWeeks = Math.ceil(totalDays / 7)
 
   const plan: Partial<IStudyPlan> = {
     userId,
-    title: `${examType} ${targetScore} — 90-Day Study Plan`,
-    examType,
+    title: planTitle,
+    examType: isCustom ? (displayName ?? 'Custom') : examType,
     targetScore,
-    examDate: examDate.toISOString(),
+    examDate: examDate ? examDate.toISOString() : null,
     startDate: start.toISOString(),
     endDate: endDate.toISOString(),
     status: 'active',
     overallProgress: 0,
-    weeklyGoals: Array.from({ length: 13 }, (_, i) => {
+    weeklyGoals: Array.from({ length: totalWeeks }, (_, i) => {
       const week = i + 1
       return {
         week,
-        focus: getWeeklyFocus(week),
-        targetTasksCount: 7,
+        focus: isCustom ? `Week ${week}` : getWeeklyFocus(week),
+        targetTasksCount: 0, // custom: user adds tasks manually
       }
     }),
+  }
+
+  // Custom plans: no pre-generated tasks — user adds them later
+  if (isCustom) {
+    return { plan, tasks: [], milestones: [] }
   }
 
   // Build a pool of exam sets per difficulty for round-robin assignment
@@ -153,10 +168,10 @@ export function generateStudyPlan(config: PlanGeneratorConfig): GeneratedPlan {
     return set
   }
 
-  const rotation = ROTATIONS[examType]
+  const rotation = ROTATIONS[examType as StandardExamType]
   const tasks: Partial<IDailyTask>[] = []
 
-  for (let day = 0; day < 90; day++) {
+  for (let day = 0; day < totalDays; day++) {
     const date = addDays(start, day)
     const dayOfWeek = date.getDay() // 0=Sun, 1=Mon ... 6=Sat
     // Map to rotation index: Mon=0 ... Sun=6
@@ -179,7 +194,7 @@ export function generateStudyPlan(config: PlanGeneratorConfig): GeneratedPlan {
       }
     }
 
-    const title = getTaskTitle(actualTemplate, examType)
+    const title = getTaskTitle(actualTemplate, examType as StandardExamType)
 
     // Assign exam set to mock_test tasks
     const isMockTest = actualTemplate.taskType === 'mock_test'

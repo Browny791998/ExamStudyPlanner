@@ -21,6 +21,9 @@ import {
 import { format } from "date-fns"
 import { BookOpen, Trash2, ChevronDown, ChevronUp, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { AddTaskSheet } from "@/components/study-plan/AddTaskSheet"
+
+const STANDARD_EXAM_TYPES = ["IELTS", "TOEFL", "JLPT", "SAT"]
 
 interface WeekGoal {
   week: number
@@ -35,8 +38,21 @@ const EXAM_COLORS: Record<string, string> = {
   SAT: "card-gradient-green",
 }
 
-function WeekAccordion({ week, planId }: { week: WeekGoal; planId: string }) {
+function WeekAccordion({
+  week,
+  planId,
+  isCustom,
+  planStartDate,
+  planEndDate,
+}: {
+  week: WeekGoal
+  planId: string
+  isCustom: boolean
+  planStartDate: string
+  planEndDate: string
+}) {
   const [open, setOpen] = useState(false)
+  const [addTaskOpen, setAddTaskOpen] = useState(false)
   const { tasks, isLoading } = useDailyTasks(undefined, week.week, planId)
   const { completeTask, isCompleting } = useCompleteTask()
 
@@ -71,7 +87,7 @@ function WeekAccordion({ week, planId }: { week: WeekGoal; planId: string }) {
               {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-10 rounded-xl" />)}
             </div>
           ) : tasks.length === 0 ? (
-            <p className="text-xs text-muted-foreground px-4 py-3">No tasks loaded.</p>
+            <p className="text-xs text-muted-foreground px-4 py-3">No tasks yet.</p>
           ) : (
             tasks.map(task => (
               <TaskItem
@@ -82,8 +98,28 @@ function WeekAccordion({ week, planId }: { week: WeekGoal; planId: string }) {
               />
             ))
           )}
+          {isCustom && (
+            <div className="px-2 pt-1">
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full gap-1.5 text-xs h-8"
+                onClick={(e) => { e.stopPropagation(); setAddTaskOpen(true) }}
+              >
+                <Plus className="h-3.5 w-3.5" /> Add Task
+              </Button>
+            </div>
+          )}
         </div>
       )}
+
+      <AddTaskSheet
+        open={addTaskOpen}
+        onOpenChange={setAddTaskOpen}
+        planId={planId}
+        planStartDate={planStartDate}
+        planEndDate={planEndDate}
+      />
     </div>
   )
 }
@@ -93,6 +129,7 @@ function PlanPanel({ plan }: { plan: IStudyPlan }) {
   const router = useRouter()
   const [confirmDelete, setConfirmDelete] = useState(false)
   const gradientClass = EXAM_COLORS[plan.examType] ?? "card-gradient-violet"
+  const isCustom = !STANDARD_EXAM_TYPES.includes(plan.examType)
 
   return (
     <div className="space-y-6">
@@ -112,7 +149,9 @@ function PlanPanel({ plan }: { plan: IStudyPlan }) {
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Exam Date</p>
-            <p className="font-semibold text-sm">{format(new Date(plan.examDate), "MMM d, yyyy")}</p>
+            <p className="font-semibold text-sm">
+              {plan.examDate ? format(new Date(plan.examDate), "MMM d, yyyy") : "—"}
+            </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Start Date</p>
@@ -132,7 +171,14 @@ function PlanPanel({ plan }: { plan: IStudyPlan }) {
         <h3 className="text-base font-semibold mb-3">Weekly Breakdown</h3>
         <div className="space-y-2">
           {(plan.weeklyGoals ?? []).map(week => (
-            <WeekAccordion key={week.week} week={week} planId={plan._id} />
+            <WeekAccordion
+              key={week.week}
+              week={week}
+              planId={plan._id}
+              isCustom={isCustom}
+              planStartDate={plan.startDate}
+              planEndDate={plan.endDate}
+            />
           ))}
         </div>
       </div>

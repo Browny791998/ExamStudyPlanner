@@ -4,8 +4,7 @@ import { useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { dailyTaskSchema, type DailyTaskFormData } from "@/validations/questionSchema"
-import { useAddTask } from "@/hooks/useTaskManagement"
-import { useActivePlan } from "@/hooks/useStudyPlan"
+import { useAddTask } from "@/hooks/useStudyPlan"
 import {
   Sheet,
   SheetContent,
@@ -36,11 +35,13 @@ import { cn } from "@/lib/utils"
 interface AddTaskSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  planId?: string
+  planStartDate?: string
+  planEndDate?: string
   defaultDate?: Date
 }
 
-export function AddTaskSheet({ open, onOpenChange, defaultDate }: AddTaskSheetProps) {
-  const { plan } = useActivePlan()
+export function AddTaskSheet({ open, onOpenChange, planId, defaultDate }: AddTaskSheetProps) {
   const { addTask, isPending } = useAddTask()
 
   const {
@@ -54,12 +55,15 @@ export function AddTaskSheet({ open, onOpenChange, defaultDate }: AddTaskSheetPr
     resolver: zodResolver(dailyTaskSchema),
     defaultValues: {
       scheduledDate: defaultDate ? defaultDate.toISOString() : new Date().toISOString(),
+      skillFocus: "Reading",
+      taskType: "drill",
+      durationMins: 30,
     },
   })
 
   useEffect(() => {
-    if (plan) setValue("planId", plan._id)
-  }, [plan, setValue])
+    if (planId) setValue("planId", planId)
+  }, [planId, setValue])
 
   useEffect(() => {
     if (defaultDate) setValue("scheduledDate", defaultDate.toISOString())
@@ -76,15 +80,15 @@ export function AddTaskSheet({ open, onOpenChange, defaultDate }: AddTaskSheetPr
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
-        <SheetHeader className="mb-6">
+      <SheetContent className="w-full sm:max-w-md overflow-y-auto px-6">
+        <SheetHeader className="mb-6 pt-2">
           <SheetTitle>Add Task</SheetTitle>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 pb-8">
           <input type="hidden" {...register("planId")} />
 
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label>Date *</Label>
             <Controller
               name="scheduledDate"
@@ -121,7 +125,7 @@ export function AddTaskSheet({ open, onOpenChange, defaultDate }: AddTaskSheetPr
             )}
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label>Title *</Label>
             <Input
               placeholder="e.g. Reading Comprehension Drill"
@@ -131,7 +135,7 @@ export function AddTaskSheet({ open, onOpenChange, defaultDate }: AddTaskSheetPr
             {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label>Description</Label>
             <Textarea
               rows={2}
@@ -141,7 +145,7 @@ export function AddTaskSheet({ open, onOpenChange, defaultDate }: AddTaskSheetPr
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Skill Focus *</Label>
               <Controller
                 name="skillFocus"
@@ -155,6 +159,7 @@ export function AddTaskSheet({ open, onOpenChange, defaultDate }: AddTaskSheetPr
                       {[
                         "Reading", "Writing", "Listening", "Speaking",
                         "Vocabulary", "Grammar", "Math", "Mock Test",
+                        "Study", "Review", "Practice", "Other",
                       ].map((s) => (
                         <SelectItem key={s} value={s}>{s}</SelectItem>
                       ))}
@@ -165,7 +170,7 @@ export function AddTaskSheet({ open, onOpenChange, defaultDate }: AddTaskSheetPr
               {errors.skillFocus && <p className="text-xs text-destructive">{errors.skillFocus.message}</p>}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Task Type *</Label>
               <Controller
                 name="taskType"
@@ -189,7 +194,7 @@ export function AddTaskSheet({ open, onOpenChange, defaultDate }: AddTaskSheetPr
             </div>
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label>Duration (minutes) *</Label>
             <Input
               type="number"

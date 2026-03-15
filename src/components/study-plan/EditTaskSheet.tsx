@@ -107,8 +107,8 @@ export function EditTaskSheet({ open, onOpenChange, task }: EditTaskSheetProps) 
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
-          <SheetHeader className="mb-2">
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto px-6">
+          <SheetHeader className="pt-2 mb-4">
             <SheetTitle>Edit Task</SheetTitle>
             <p className="text-xs text-muted-foreground">
               Day {task.dayNumber} · Week {task.weekNumber}
@@ -120,8 +120,8 @@ export function EditTaskSheet({ open, onOpenChange, task }: EditTaskSheetProps) 
             </p>
           </SheetHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
-            <div className="space-y-1.5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 pb-8">
+            <div className="space-y-2">
               <Label>Date</Label>
               <Controller
                 name="scheduledDate"
@@ -148,7 +148,7 @@ export function EditTaskSheet({ open, onOpenChange, task }: EditTaskSheetProps) 
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Title *</Label>
               <Input
                 {...register("title", { required: "Title is required" })}
@@ -157,13 +157,13 @@ export function EditTaskSheet({ open, onOpenChange, task }: EditTaskSheetProps) 
               {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Description</Label>
               <Textarea rows={2} {...register("description")} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label>Skill Focus</Label>
                 <Controller
                   name="skillFocus"
@@ -183,7 +183,7 @@ export function EditTaskSheet({ open, onOpenChange, task }: EditTaskSheetProps) 
                 />
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label>Task Type</Label>
                 <Controller
                   name="taskType"
@@ -206,7 +206,7 @@ export function EditTaskSheet({ open, onOpenChange, task }: EditTaskSheetProps) 
               </div>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Duration (minutes)</Label>
               <Input
                 type="number"
@@ -216,7 +216,7 @@ export function EditTaskSheet({ open, onOpenChange, task }: EditTaskSheetProps) 
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Notes</Label>
               <Textarea rows={2} placeholder="Personal notes…" {...register("notes")} />
             </div>

@@ -8,7 +8,7 @@ export interface IDailyTaskDocument extends Document {
   weekNumber: number
   title: string
   description: string
-  skillFocus: 'Reading' | 'Writing' | 'Listening' | 'Speaking' | 'Vocabulary' | 'Grammar' | 'Math' | 'Mock Test'
+  skillFocus: 'Reading' | 'Writing' | 'Listening' | 'Speaking' | 'Vocabulary' | 'Grammar' | 'Math' | 'Mock Test' | 'Study' | 'Review' | 'Practice' | 'Other'
   taskType: 'drill' | 'mock_test' | 'revision' | 'vocabulary' | 'essay'
   durationMins: number
   completed: boolean
@@ -32,7 +32,7 @@ const dailyTaskSchema = new Schema<IDailyTaskDocument>(
     description: { type: String, default: '' },
     skillFocus: {
       type: String,
-      enum: ['Reading', 'Writing', 'Listening', 'Speaking', 'Vocabulary', 'Grammar', 'Math', 'Mock Test'],
+      enum: ['Reading', 'Writing', 'Listening', 'Speaking', 'Vocabulary', 'Grammar', 'Math', 'Mock Test', 'Study', 'Review', 'Practice', 'Other'],
       required: true,
     },
     taskType: { type: String, enum: ['drill', 'mock_test', 'revision', 'vocabulary', 'essay'], required: true },

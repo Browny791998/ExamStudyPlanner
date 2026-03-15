@@ -2,9 +2,9 @@ export interface IStudyPlan {
   _id: string
   userId: string
   title: string
-  examType: 'IELTS' | 'TOEFL' | 'JLPT' | 'SAT'
+  examType: string // 'IELTS' | 'TOEFL' | 'JLPT' | 'SAT' | custom name
   targetScore: string
-  examDate: string // ISO
+  examDate: string | null // ISO, null for custom plans without exam date
   startDate: string // ISO
   endDate: string // ISO
   status: 'active' | 'completed' | 'paused'
@@ -23,7 +23,7 @@ export interface IDailyTask {
   weekNumber: number
   title: string
   description: string
-  skillFocus: 'Reading' | 'Writing' | 'Listening' | 'Speaking' | 'Vocabulary' | 'Grammar' | 'Math' | 'Mock Test'
+  skillFocus: 'Reading' | 'Writing' | 'Listening' | 'Speaking' | 'Vocabulary' | 'Grammar' | 'Math' | 'Mock Test' | 'Study' | 'Review' | 'Practice' | 'Other'
   taskType: 'drill' | 'mock_test' | 'revision' | 'vocabulary' | 'essay'
   durationMins: number
   completed: boolean

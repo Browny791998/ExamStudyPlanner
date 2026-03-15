@@ -80,14 +80,14 @@ export function AddCustomQuestionSheet({ open, onOpenChange }: AddCustomQuestion
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
-        <SheetHeader className="mb-6">
+      <SheetContent className="w-full sm:max-w-lg overflow-y-auto px-6">
+        <SheetHeader className="pt-2 mb-6">
           <SheetTitle>Add Custom Question</SheetTitle>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 pb-8">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Question Type *</Label>
               <Controller
                 name="questionType"
@@ -111,7 +111,7 @@ export function AddCustomQuestionSheet({ open, onOpenChange }: AddCustomQuestion
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Exam Type *</Label>
               <Controller
                 name="examType"
@@ -131,7 +131,7 @@ export function AddCustomQuestionSheet({ open, onOpenChange }: AddCustomQuestion
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Section *</Label>
               <Controller
                 name="section"
@@ -151,7 +151,7 @@ export function AddCustomQuestionSheet({ open, onOpenChange }: AddCustomQuestion
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Difficulty *</Label>
               <Controller
                 name="difficulty"
@@ -197,7 +197,7 @@ export function AddCustomQuestionSheet({ open, onOpenChange }: AddCustomQuestion
                   <Input placeholder={`Option ${letter}`} {...register(`options.${i}`)} />
                 </div>
               ))}
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label>Correct Answer *</Label>
                 <Controller
                   name="correctAnswer"

@@ -1,6 +1,7 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
-export type ExamType = "IELTS" | "TOEFL" | "JLPT" | "SAT";
+export type StandardExamType = "IELTS" | "TOEFL" | "JLPT" | "SAT";
+export type ExamType = StandardExamType | (string & {});
 export type QuestionType =
   | "multiple_choice"
   | "fill_blank"
@@ -60,7 +61,7 @@ const matchingPairSchema = new Schema<IMatchingPair>(
 
 const questionSchema = new Schema<IQuestionDocument>(
   {
-    examType: { type: String, enum: ["IELTS", "TOEFL", "JLPT", "SAT"], required: true, index: true },
+    examType: { type: String, required: true, index: true },
     section: { type: String, required: true, index: true },
     questionType: {
       type: String,

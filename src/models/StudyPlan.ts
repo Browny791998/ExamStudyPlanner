@@ -3,9 +3,9 @@ import mongoose, { Document, Model, Schema } from 'mongoose'
 export interface IStudyPlanDocument extends Document {
   userId: mongoose.Types.ObjectId
   title: string
-  examType: 'IELTS' | 'TOEFL' | 'JLPT' | 'SAT'
+  examType: string // 'IELTS' | 'TOEFL' | 'JLPT' | 'SAT' | custom name
   targetScore: string
-  examDate: Date
+  examDate: Date | null
   startDate: Date
   endDate: Date
   status: 'active' | 'completed' | 'paused'
@@ -21,9 +21,9 @@ const studyPlanSchema = new Schema<IStudyPlanDocument>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     title: { type: String, required: true },
-    examType: { type: String, enum: ['IELTS', 'TOEFL', 'JLPT', 'SAT'], required: true },
+    examType: { type: String, required: true },
     targetScore: { type: String, required: true },
-    examDate: { type: Date, required: true },
+    examDate: { type: Date, default: null },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     status: { type: String, enum: ['active', 'completed', 'paused'], default: 'active' },

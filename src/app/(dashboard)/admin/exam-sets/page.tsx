@@ -22,11 +22,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Plus, Pencil, Trash2, Eye, EyeOff, BookOpen } from "lucide-react"
+import { Plus, Pencil, Trash2, Eye, EyeOff, BookOpen, ChevronLeft, ChevronRight } from "lucide-react"
 import type { IExamSetSummary } from "@/store/slices/mockTestSlice"
 import { CreateExamSetSheet } from "@/components/admin/CreateExamSetSheet"
 import { EditExamSetSheet } from "@/components/admin/EditExamSetSheet"
 import { ManageExamSetSheet } from "@/components/admin/ManageExamSetSheet"
+import { useUserExamTypes } from "@/hooks/useStudyPlan"
 
 const DIFFICULTY_VARIANT: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   easy: "secondary",
@@ -34,9 +35,12 @@ const DIFFICULTY_VARIANT: Record<string, "default" | "secondary" | "outline" | "
   hard: "destructive",
 }
 
+const PAGE_SIZE = 10
+
 export default function AdminExamSetsPage() {
   const [examTypeFilter, setExamTypeFilter] = useState<string>("")
   const [difficultyFilter, setDifficultyFilter] = useState<string>("")
+  const [page, setPage] = useState(1)
   const [createOpen, setCreateOpen] = useState(false)
   const [editSet, setEditSet] = useState<IExamSetSummary | null>(null)
   const [manageSet, setManageSet] = useState<IExamSetSummary | null>(null)
@@ -45,9 +49,14 @@ export default function AdminExamSetsPage() {
   const { sets, total, isLoading } = useAdminExamSets({
     examType: examTypeFilter || undefined,
     difficulty: difficultyFilter || undefined,
+    page,
+    limit: PAGE_SIZE,
   })
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const { deleteExamSet, isPending: isDeleting } = useDeleteExamSet()
   const { publishExamSet, isPending: isPublishing } = usePublishExamSet()
+  const examTypes = useUserExamTypes()
 
   return (
     <div className="space-y-6">
@@ -65,20 +74,19 @@ export default function AdminExamSetsPage() {
 
       {/* Filters */}
       <div className="flex gap-3 flex-wrap">
-        <Select value={examTypeFilter || "all"} onValueChange={v => setExamTypeFilter(!v || v === "all" ? "" : v)}>
+        <Select value={examTypeFilter || "all"} onValueChange={v => { setExamTypeFilter(!v || v === "all" ? "" : v); setPage(1) }}>
           <SelectTrigger className="w-36">
             <SelectValue placeholder="Exam Type" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="IELTS">IELTS</SelectItem>
-            <SelectItem value="TOEFL">TOEFL</SelectItem>
-            <SelectItem value="JLPT">JLPT</SelectItem>
-            <SelectItem value="SAT">SAT</SelectItem>
+            {examTypes.map((e) => (
+              <SelectItem key={e} value={e}>{e}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
-        <Select value={difficultyFilter || "all"} onValueChange={v => setDifficultyFilter(!v || v === "all" ? "" : v)}>
+        <Select value={difficultyFilter || "all"} onValueChange={v => { setDifficultyFilter(!v || v === "all" ? "" : v); setPage(1) }}>
           <SelectTrigger className="w-36">
             <SelectValue placeholder="Difficulty" />
           </SelectTrigger>
@@ -189,6 +197,34 @@ export default function AdminExamSetsPage() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>
+            Page {page} of {totalPages} · {total} set{total !== 1 ? "s" : ""}
+          </span>
+          <div className="flex gap-1">
+            <Button
+              size="icon"
+              variant="outline"
+              className="h-7 w-7"
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              size="icon"
+              variant="outline"
+              className="h-7 w-7"
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       <CreateExamSetSheet open={createOpen} onOpenChange={setCreateOpen} />
       {manageSet && (

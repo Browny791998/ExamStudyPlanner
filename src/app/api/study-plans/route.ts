@@ -26,39 +26,49 @@ export async function POST(req: NextRequest) {
 
     await connectDB()
 
-    const { examType, targetScore, examDate } = parsed.data
     const userId = payload.userId
+    const data = parsed.data
+    const isCustom = data.planMode === 'custom'
 
-    // Check for existing active plan for the same exam type
+    // Resolve display name and exam type key
+    const examType = isCustom ? 'CUSTOM' : data.examType
+    const displayName = isCustom ? data.customExamName : data.examType
+    const targetScore = data.targetScore
+    const examDate = !isCustom ? data.examDate : (data.examDate ?? null)
+    const planDays = isCustom ? data.planDays : 90
+
+    // Check for duplicate active plan with same display name
     const existing = await StudyPlan.findOne({
       userId: new mongoose.Types.ObjectId(userId),
-      examType,
+      examType: displayName,
       status: 'active',
     })
     if (existing) {
       return NextResponse.json(
-        { success: false, error: `You already have an active ${examType} study plan` },
+        { success: false, error: `You already have an active ${displayName} study plan` },
         { status: 409 }
       )
     }
 
-    // Fetch published exam sets for this exam type to assign to mock test days
-    const publishedSets = await ExamSet.find({ examType, isPublished: true })
+    // Fetch published exam sets (only for standard plans)
+    const availableSets = isCustom ? [] : await ExamSet.find({ examType, isPublished: true })
       .select('_id name difficulty')
       .lean()
-    const availableSets = publishedSets.map(s => ({
-      _id: s._id.toString(),
-      name: s.name,
-      difficulty: s.difficulty,
-    }))
+      .then(sets => sets.map(s => ({
+        _id: s._id.toString(),
+        name: s.name,
+        difficulty: s.difficulty as 'easy' | 'medium' | 'hard',
+      })))
 
     const startDate = new Date()
     const generated = generateStudyPlan({
       userId,
-      examType: examType as 'IELTS' | 'TOEFL' | 'JLPT' | 'SAT',
+      examType: examType as 'IELTS' | 'TOEFL' | 'JLPT' | 'SAT' | 'CUSTOM',
+      displayName,
       targetScore,
-      examDate: new Date(examDate),
+      examDate: examDate ? new Date(examDate) : null,
       startDate,
+      planDays,
       availableSets,
     })
 
@@ -86,11 +96,13 @@ export async function POST(req: NextRequest) {
     }))
     await Milestone.insertMany(milestoneDocs)
 
-    // Update user
+    // Update user (only update examType/examDate for standard plans)
     await User.findByIdAndUpdate(userId, {
-      examType,
+      ...(isCustom ? {} : {
+        examType: displayName,
+        examDate: examDate ? new Date(examDate) : null,
+      }),
       targetScore,
-      examDate: new Date(examDate),
       hasCompletedOnboarding: true,
     })
 

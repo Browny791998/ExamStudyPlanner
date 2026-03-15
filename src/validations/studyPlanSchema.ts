@@ -1,18 +1,36 @@
 import { z } from 'zod'
 import { addDays } from 'date-fns'
 
-export const createStudyPlanSchema = z.object({
-  examType: z.enum(['IELTS', 'TOEFL', 'JLPT', 'SAT']),
-  targetScore: z.string().min(1, 'Target score is required'),
-  examDate: z.string().refine(
-    (val) => {
-      const date = new Date(val)
-      if (isNaN(date.getTime())) return false
-      return date >= addDays(new Date(), 30)
-    },
-    { message: 'Exam date must be at least 30 days from today' }
-  ),
-})
+export const createStudyPlanSchema = z.discriminatedUnion('planMode', [
+  // Standard predefined exam types (90 days, exam date required)
+  z.object({
+    planMode: z.literal('standard'),
+    examType: z.enum(['IELTS', 'TOEFL', 'JLPT', 'SAT']),
+    targetScore: z.string().min(1, 'Target score is required'),
+    examDate: z.string().refine(
+      (val) => {
+        const date = new Date(val)
+        if (isNaN(date.getTime())) return false
+        return date >= addDays(new Date(), 30)
+      },
+      { message: 'Exam date must be at least 30 days from today' }
+    ),
+  }),
+  // Custom exam type — user-defined name, duration, optional exam date
+  z.object({
+    planMode: z.literal('custom'),
+    examType: z.literal('CUSTOM'),
+    customExamName: z.string()
+      .min(2, 'Exam name must be at least 2 characters')
+      .max(50, 'Exam name must be under 50 characters'),
+    targetScore: z.string().min(1, 'Target goal is required').max(50),
+    planDays: z.number()
+      .int('Must be a whole number')
+      .min(1, 'Plan must be at least 1 day')
+      .max(365, 'Plan cannot exceed 365 days'),
+    examDate: z.string().optional(),
+  }),
+])
 
 export type CreateStudyPlanFormData = z.infer<typeof createStudyPlanSchema>
 

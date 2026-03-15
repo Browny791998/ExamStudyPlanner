@@ -1,4 +1,5 @@
-export type ExamType = "IELTS" | "TOEFL" | "JLPT" | "SAT";
+export type StandardExamType = "IELTS" | "TOEFL" | "JLPT" | "SAT";
+export type ExamType = StandardExamType | (string & {});
 export type QuestionType =
   | "multiple_choice"
   | "fill_blank"

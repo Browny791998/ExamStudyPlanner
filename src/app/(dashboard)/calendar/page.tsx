@@ -137,7 +137,7 @@ export default function CalendarPage() {
                 <XCircle className="h-3 w-3" /> Sync failed
               </span>
             )}
-            <Button
+            {/* <Button
               variant="outline"
               size="sm"
               className="rounded-xl gap-2"
@@ -155,7 +155,7 @@ export default function CalendarPage() {
                   Sync to Google Calendar
                 </>
               )}
-            </Button>
+            </Button> */}
           </div>
         )}
       </div>

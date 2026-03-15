@@ -7,7 +7,7 @@ export interface IExamSetSection {
 }
 
 export interface IExamSetDocument extends Document {
-  examType: 'IELTS' | 'TOEFL' | 'JLPT' | 'SAT'
+  examType: string
   name: string
   description: string
   difficulty: 'easy' | 'medium' | 'hard'
@@ -32,7 +32,7 @@ const examSetSectionSchema = new Schema<IExamSetSection>(
 
 const examSetSchema = new Schema<IExamSetDocument>(
   {
-    examType: { type: String, enum: ['IELTS', 'TOEFL', 'JLPT', 'SAT'], required: true, index: true },
+    examType: { type: String, required: true, index: true },
     name: { type: String, required: true },
     description: { type: String, required: true },
     difficulty: { type: String, enum: ['easy', 'medium', 'hard'], required: true, index: true },

@@ -84,12 +84,12 @@ export function EditExamSetSheet({ examSet, open, onOpenChange }: EditExamSetShe
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
-        <SheetHeader className="pb-2">
+      <SheetContent className="w-full sm:max-w-xl overflow-y-auto px-6">
+        <SheetHeader className="pt-2 mb-6">
           <SheetTitle>Edit Exam Set</SheetTitle>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-8">
           <div className="space-y-2">
             <Label>Exam Type</Label>
             <Input value={examSet.examType} disabled className="bg-muted" />

@@ -30,3 +30,5 @@ export const EXAM_TYPES = {
 } as const
 
 export type ExamTypeKey = keyof typeof EXAM_TYPES
+
+export const CUSTOM_EXAM_TYPE = 'CUSTOM' as const

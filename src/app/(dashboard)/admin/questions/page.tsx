@@ -41,6 +41,7 @@ import type { IQuestion } from "@/types/question"
 import { AddQuestionSheet } from "@/components/admin/AddQuestionSheet"
 import { ImportCSVDialog } from "@/components/admin/ImportCSVDialog"
 import { useDebounce } from "@/hooks/useDebounce"
+import { useUserExamTypes } from "@/hooks/useStudyPlan"
 import axios from "axios"
 
 const DIFFICULTY_VARIANT: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
@@ -85,6 +86,7 @@ export default function AdminQuestionsPage() {
   })
 
   const { deleteQuestion, isPending: isDeleting } = useDeleteQuestion()
+  const examTypes = useUserExamTypes()
 
   const handleDownloadTemplate = useCallback(async (selectedExamType: string) => {
     setDownloadingTemplate(true)
@@ -121,7 +123,7 @@ export default function AdminQuestionsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="_all">All Exams</SelectItem>
-              {["IELTS", "TOEFL", "JLPT", "SAT"].map((e) => (
+              {examTypes.map((e) => (
                 <SelectItem key={e} value={e}>{e}</SelectItem>
               ))}
             </SelectContent>
@@ -312,7 +314,7 @@ export default function AdminQuestionsPage() {
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-2 gap-3 pt-2">
-              {["IELTS", "TOEFL", "JLPT", "SAT"].map((type) => (
+              {examTypes.map((type) => (
                 <Button
                   key={type}
                   variant="outline"

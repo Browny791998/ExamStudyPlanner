@@ -27,6 +27,7 @@ import {
 import { cn } from "@/lib/utils"
 import { Plus, Trash2 } from "lucide-react"
 import { format } from "date-fns"
+import { useUserExamTypes } from "@/hooks/useStudyPlan"
 
 const EXAM_SECTIONS: Record<string, string[]> = {
   IELTS: ["Reading", "Writing", "Listening", "Speaking"],
@@ -46,6 +47,7 @@ export function AddQuestionSheet({ open, onOpenChange, question }: AddQuestionSh
   const { createQuestion, isPending: isCreating } = useCreateQuestion()
   const { updateQuestion, isPending: isUpdating } = useUpdateQuestion()
   const isPending = isCreating || isUpdating
+  const examTypes = useUserExamTypes()
 
   const {
     register,
@@ -145,7 +147,8 @@ export function AddQuestionSheet({ open, onOpenChange, question }: AddQuestionSh
     console.error("[AddQuestionSheet] validation errors:", errs)
   }
 
-  const sections = watchedExamType ? EXAM_SECTIONS[watchedExamType] ?? [] : []
+  const standardSections = watchedExamType ? EXAM_SECTIONS[watchedExamType] ?? [] : []
+  const isCustomExamType = watchedExamType ? !EXAM_SECTIONS[watchedExamType] : false
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -160,7 +163,7 @@ export function AddQuestionSheet({ open, onOpenChange, question }: AddQuestionSh
         </SheetHeader>
 
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        <form onSubmit={handleSubmit(onSubmit as any, onError)} className="space-y-6 pb-8">
+        <form onSubmit={handleSubmit(onSubmit as any, onError)} className="space-y-6 pb-10">
           {/* Step 1: Metadata */}
           <div className="grid grid-cols-2 gap-x-4 gap-y-5">
             <div className="space-y-2">
@@ -169,12 +172,12 @@ export function AddQuestionSheet({ open, onOpenChange, question }: AddQuestionSh
                 name="examType"
                 control={control}
                 render={({ field }) => (
-                  <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                  <Select value={field.value ?? ""} onValueChange={(v) => { field.onChange(v); setValue("section", "") }}>
                     <SelectTrigger className={cn(errors.examType && "border-destructive")}>
                       <SelectValue placeholder="Select exam" />
                     </SelectTrigger>
                     <SelectContent>
-                      {["IELTS", "TOEFL", "JLPT", "SAT"].map((e) => (
+                      {examTypes.map((e) => (
                         <SelectItem key={e} value={e}>{e}</SelectItem>
                       ))}
                     </SelectContent>
@@ -186,22 +189,31 @@ export function AddQuestionSheet({ open, onOpenChange, question }: AddQuestionSh
 
             <div className="space-y-2">
               <Label>Section *</Label>
-              <Controller
-                name="section"
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value ?? ""} onValueChange={field.onChange} disabled={!watchedExamType}>
-                    <SelectTrigger className={cn(errors.section && "border-destructive")}>
-                      <SelectValue placeholder="Select section" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sections.map((s) => (
-                        <SelectItem key={s} value={s}>{s}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
+              {isCustomExamType ? (
+                <Input
+                  placeholder="e.g. Chapter 1, Module A…"
+                  {...register("section")}
+                  disabled={!watchedExamType}
+                  className={cn(errors.section && "border-destructive")}
+                />
+              ) : (
+                <Controller
+                  name="section"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value ?? ""} onValueChange={field.onChange} disabled={!watchedExamType}>
+                      <SelectTrigger className={cn(errors.section && "border-destructive")}>
+                        <SelectValue placeholder="Select section" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {standardSections.map((s) => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              )}
               {errors.section && <p className="text-xs text-destructive">{errors.section.message}</p>}
             </div>
 

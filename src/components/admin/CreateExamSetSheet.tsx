@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select"
 import { Plus, Trash2 } from "lucide-react"
 import { EXAM_SET_CONFIG } from "@/constants/questionTypes"
+import { useUserExamTypes } from "@/hooks/useStudyPlan"
 
 interface CreateExamSetSheetProps {
   open: boolean
@@ -31,6 +32,7 @@ interface CreateExamSetSheetProps {
 
 export function CreateExamSetSheet({ open, onOpenChange }: CreateExamSetSheetProps) {
   const { createExamSet, isPending } = useCreateExamSet()
+  const examTypes = useUserExamTypes()
 
   const {
     register,
@@ -39,8 +41,9 @@ export function CreateExamSetSheet({ open, onOpenChange }: CreateExamSetSheetPro
     reset,
     control,
     formState: { errors },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = useForm<ExamSetFormData>({
-    resolver: zodResolver(examSetSchema),
+    resolver: zodResolver(examSetSchema) as any,
     defaultValues: {
       sections: [],
       timeLimitMins: 180,
@@ -52,8 +55,9 @@ export function CreateExamSetSheet({ open, onOpenChange }: CreateExamSetSheetPro
     name: "sections",
   })
 
-  const onSubmit = (data: ExamSetFormData) => {
-    createExamSet(data, {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onSubmit = (data: any) => {
+    createExamSet(data as ExamSetFormData, {
       onSuccess: () => {
         reset()
         onOpenChange(false)
@@ -63,12 +67,12 @@ export function CreateExamSetSheet({ open, onOpenChange }: CreateExamSetSheetPro
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
-        <SheetHeader>
+      <SheetContent className="w-full sm:max-w-xl overflow-y-auto px-6">
+        <SheetHeader className="pt-2 mb-6">
           <SheetTitle>Create Exam Set</SheetTitle>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 pb-8">
           <div className="space-y-1.5">
             <Label>Exam Type</Label>
             <Controller
@@ -90,10 +94,9 @@ export function CreateExamSetSheet({ open, onOpenChange }: CreateExamSetSheetPro
                     <SelectValue placeholder="Select exam type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="IELTS">IELTS</SelectItem>
-                    <SelectItem value="TOEFL">TOEFL</SelectItem>
-                    <SelectItem value="JLPT">JLPT</SelectItem>
-                    <SelectItem value="SAT">SAT</SelectItem>
+                    {examTypes.map((e) => (
+                      <SelectItem key={e} value={e}>{e}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               )}
@@ -114,7 +117,7 @@ export function CreateExamSetSheet({ open, onOpenChange }: CreateExamSetSheetPro
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Difficulty</Label>
               <Controller
                 control={control}
@@ -135,7 +138,7 @@ export function CreateExamSetSheet({ open, onOpenChange }: CreateExamSetSheetPro
               {errors.difficulty && <p className="text-xs text-destructive">{errors.difficulty.message}</p>}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Time Limit (mins)</Label>
               <Input
                 type="number"

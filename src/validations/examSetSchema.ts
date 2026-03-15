@@ -6,7 +6,7 @@ export const examSetSectionSchema = z.object({
 })
 
 export const examSetSchema = z.object({
-  examType: z.enum(['IELTS', 'TOEFL', 'JLPT', 'SAT']),
+  examType: z.string().min(1, 'Exam type is required').max(50),
   name: z.string().min(3, 'Name must be at least 3 characters').max(100),
   description: z.string().min(5, 'Description must be at least 5 characters').max(500),
   difficulty: z.enum(['easy', 'medium', 'hard']),

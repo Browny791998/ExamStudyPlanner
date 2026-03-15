@@ -2,7 +2,7 @@ import { z } from "zod";
 import { startOfDay } from "date-fns";
 
 const questionBaseSchema = z.object({
-  examType: z.enum(["IELTS", "TOEFL", "JLPT", "SAT"]),
+  examType: z.string().min(1, "Exam type is required").max(50),
   section: z.string().min(1, "Section is required"),
   questionType: z.enum([
     "multiple_choice",
@@ -140,6 +140,10 @@ export const dailyTaskSchema = z.object({
     "Grammar",
     "Math",
     "Mock Test",
+    "Study",
+    "Review",
+    "Practice",
+    "Other",
   ]),
   taskType: z.enum(["drill", "mock_test", "revision", "vocabulary", "essay"]),
   durationMins: z.number().min(5, "Minimum 5 minutes").max(480, "Maximum 8 hours"),

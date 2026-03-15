@@ -112,6 +112,59 @@ export function useCompleteTask() {
   return { mutate, isPending }
 }
 
+export function useAddTask() {
+  const qc = useQueryClient()
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (data: {
+      planId: string
+      scheduledDate: string
+      title: string
+      description?: string
+      skillFocus: IDailyTask['skillFocus']
+      taskType: IDailyTask['taskType']
+      durationMins: number
+    }) => {
+      const res = await axios.post('/api/daily-tasks', data)
+      return res.data.data.task as IDailyTask
+    },
+    onSuccess: (_task, vars) => {
+      qc.invalidateQueries({ queryKey: ['daily-tasks'] })
+      qc.invalidateQueries({ queryKey: ['study-plan'] })
+      qc.invalidateQueries({ queryKey: ['dashboard', vars.planId] })
+    },
+  })
+  return { addTask: mutate, isPending }
+}
+
+export function useDeleteTask() {
+  const qc = useQueryClient()
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (taskId: string) => {
+      const res = await axios.delete(`/api/daily-tasks/${taskId}`)
+      return res.data
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['daily-tasks'] })
+      qc.invalidateQueries({ queryKey: ['study-plan'] })
+    },
+  })
+  return { deleteTask: mutate, isPending }
+}
+
+const STANDARD_EXAM_TYPES = ['IELTS', 'TOEFL', 'JLPT', 'SAT'] as const
+
+/**
+ * Returns exam types for question/exam-set creation:
+ * the 4 standard types + any custom exam types from the user's active plans.
+ */
+export function useUserExamTypes(): string[] {
+  const { plans } = useStudyPlans()
+  const customTypes = plans
+    .map(p => p.examType)
+    .filter(t => !(STANDARD_EXAM_TYPES as readonly string[]).includes(t))
+  return [...STANDARD_EXAM_TYPES, ...Array.from(new Set(customTypes))]
+}
+
 export function useDeletePlan() {
   const qc = useQueryClient()
   const dispatch = useAppDispatch()

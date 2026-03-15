@@ -148,7 +148,7 @@ export function ImportCSVDialog({ open, onOpenChange }: ImportCSVDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
+      <DialogContent className="w-[90vw] max-w-3xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Import Questions from CSV</DialogTitle>
         </DialogHeader>
