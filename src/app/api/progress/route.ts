@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
     const { current: currentStreak, longest: longestStreak } = calcStreak(completedDates)
     const totalStudyMins = completedTasks.reduce((sum, t) => sum + t.durationMins, 0)
     const uniqueStudyDays = new Set(completedDates.map(d => startOfDay(d).getTime())).size
-    const daysUntilExam = Math.max(0, differenceInDays(new Date(plan.examDate), new Date()))
+    const daysUntilExam = plan.examDate ? Math.max(0, differenceInDays(new Date(plan.examDate), new Date())) : null
 
     const overview = {
       totalStudyMins,
@@ -122,7 +122,7 @@ export async function GET(req: NextRequest) {
       longestStreak,
       overallProgress: plan.overallProgress,
       daysUntilExam,
-      examDate: new Date(plan.examDate).toISOString(),
+      examDate: plan.examDate ? new Date(plan.examDate).toISOString() : null,
       examType: plan.examType,
       targetScore: plan.targetScore,
     }

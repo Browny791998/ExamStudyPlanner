@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
     const totalStudyMins = completedTasks.reduce((sum, t) => sum + t.durationMins, 0)
     const completedDates = completedTasks.map(t => new Date(t.completedAt ?? t.scheduledDate))
     const currentStreak = calcCurrentStreak(completedDates)
-    const daysUntilExam = Math.max(0, differenceInDays(new Date(plan.examDate), new Date()))
+    const daysUntilExam = plan.examDate ? Math.max(0, differenceInDays(new Date(plan.examDate), new Date())) : null
 
     const sortedByScore = [...results].sort((a, b) => b.totalScore - a.totalScore)
     const best = sortedByScore[0]

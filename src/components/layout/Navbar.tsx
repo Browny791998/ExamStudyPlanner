@@ -16,12 +16,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePathname } from "next/navigation";
 
 const PAGE_TITLES: Record<string, string> = {
-  "/dashboard":  "Dashboard",
+  "/dashboard": "Dashboard",
   "/study-plan": "Study Plan",
-  "/mock-test":  "Mock Tests",
-  "/calendar":   "Calendar",
-  "/progress":   "Progress",
-  "/settings":   "Settings",
+  "/mock-test": "Mock Tests",
+  "/calendar": "Calendar",
+  "/progress": "Progress",
+  "/settings": "Settings",
 };
 
 function getPageTitle(pathname: string): string {
@@ -83,7 +83,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       <div className="flex-1" />
 
       {/* Theme toggle */}
-      <Button
+      {/* <Button
         variant="ghost"
         size="icon"
         className="rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -91,17 +91,17 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         title={`Theme: ${theme}`}
       >
         <ThemeIcon className="h-5 w-5" />
-      </Button>
+      </Button> */}
 
       {/* Bell */}
-      <Button
+      {/* <Button
         variant="ghost"
         size="icon"
         className="rounded-xl relative text-muted-foreground hover:text-foreground hover:bg-muted"
       >
         <Bell className="h-5 w-5" />
         <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-pink-500" />
-      </Button>
+      </Button> */}
 
       {/* User */}
       <DropdownMenu>

@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { FileX } from 'lucide-react'
 
 export default function TestNotFound() {
@@ -12,9 +11,12 @@ export default function TestNotFound() {
         <h2 className="text-lg font-semibold">Test Not Found</h2>
         <p className="text-sm text-muted-foreground">This test doesn&apos;t exist or belongs to another user.</p>
       </div>
-      <Button asChild variant="outline">
-        <Link href="/mock-test">Back to Mock Tests</Link>
-      </Button>
+      <Link
+        href="/mock-test"
+        className="inline-flex items-center justify-center rounded-lg border border-border bg-background text-sm font-medium px-4 h-8 transition-colors hover:bg-muted"
+      >
+        Back to Mock Tests
+      </Link>
     </div>
   )
 }

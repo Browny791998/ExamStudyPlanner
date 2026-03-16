@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       questions = await Question.find({
         _id: { $in: allQuestionIds },
         isDeleted: false,
-      }).lean() as Record<string, unknown>[]
+      }).lean() as unknown as Record<string, unknown>[]
 
       timeMins = examSet.timeLimitMins
       resolvedExamSetId = examSet._id as mongoose.Types.ObjectId
@@ -102,8 +102,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'No questions available for this configuration' }, { status: 400 })
     }
 
-    const totalPoints = questions.reduce((sum: number, q: { points?: number }) => sum + (q.points ?? 1), 0)
-    const questionEmbeds = questions.map((q: { _id: mongoose.Types.ObjectId }, i: number) => ({
+    const totalPoints = (questions as { points?: number }[]).reduce((sum: number, q) => sum + (q.points ?? 1), 0)
+    const questionEmbeds = (questions as { _id: mongoose.Types.ObjectId }[]).map((q, i: number) => ({
       questionId: q._id,
       order: i + 1,
       userAnswer: null,

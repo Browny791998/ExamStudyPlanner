@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 
 export default function NotFound() {
   return (
@@ -13,12 +12,18 @@ export default function NotFound() {
           </p>
         </div>
         <div className="flex gap-3 justify-center pt-2">
-          <Button asChild>
-            <Link href="/dashboard">Go to Dashboard</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/">Go Home</Link>
-          </Button>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-medium px-4 h-8 transition-colors hover:bg-primary/80"
+          >
+            Go to Dashboard
+          </Link>
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center rounded-lg border border-border bg-background text-sm font-medium px-4 h-8 transition-colors hover:bg-muted"
+          >
+            Go Home
+          </Link>
         </div>
       </div>
     </div>

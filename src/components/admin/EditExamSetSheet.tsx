@@ -46,8 +46,9 @@ export function EditExamSetSheet({ examSet, open, onOpenChange }: EditExamSetShe
     watch,
     reset,
     formState: { errors },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = useForm<ExamSetUpdateData>({
-    resolver: zodResolver(examSetUpdateSchema),
+    resolver: zodResolver(examSetUpdateSchema) as any,
   })
 
   useEffect(() => {
